@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080c14" />
+  <title>Удачи на экзамене 🌹 | Rose Terminal</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080c14;
+      --panel: #0d1420;
+      --border: #273344;
+      --mint: #96f2b6;
+      --muted: #77869a;
+      --white: #f3ecf3;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+      padding: 30px 16px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background:
+        radial-gradient(ellipse 58% 48% at 50% 34%, rgba(115, 39, 83, .22), transparent 78%),
+        radial-gradient(ellipse 40% 36% at 12% 88%, rgba(39, 103, 82, .10), transparent 80%),
+        var(--bg);
+      color: var(--white);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(201, 229, 249, .018) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(201, 229, 249, .018) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, black, transparent);
+    }
+    .terminal {
+      position: relative;
+      z-index: 1;
+      width: min(980px, 100%);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: linear-gradient(156deg, #101928 0%, #0b111b 66%, #0b1219 100%);
+      box-shadow: 0 34px 90px #0008, 0 0 60px #a7306410, inset 0 1px 0 #ffffff0b;
+    }
+    .terminal::after {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 42px 0 0;
+      opacity: .28;
+      background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0, 0, 0, .16) 3px 4px);
+      z-index: 5;
+    }
+    .titlebar {
+      min-height: 43px;
+      padding: 0 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: #151c29;
+      border-bottom: 1px solid #283242;
+      color: #8794a8;
+      font-size: 11px;
+      letter-spacing: .03em;
+    }
+    .lights { display: flex; gap: 8px; }
+    .light { width: 10px; height: 10px; border-radius: 50%; }
+    .light:nth-child(1) { background: #ff5d64; }
+    .light:nth-child(2) { background: #ffbf4e; }
+    .light:nth-child(3) { background: #42cb74; }
+    .terminal-name { position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .top-right { color: #6c7b90; }
+    .content { min-height: 565px; padding: 26px 34px 24px; position: relative; }
+    .command, .log, .wish-line, .meta, .footer { font-size: 13px; }
+    .command { display: flex; align-items: baseline; min-height: 22px; gap: 9px; overflow: hidden; white-space: nowrap; }
+    .host { color: var(--mint); }
+    .sign { color: #8998ad; }
+    #command-text { color: #e4d7e7; }
+    .block-cursor {
+      display: inline-block;
+      background: #9ce7b9;
+      width: 7px;
+      height: 13px;
+      vertical-align: -2px;
+      animation: blink 1.05s steps(1) infinite;
+    }
+    .logs { margin-top: 8px; min-height: 36px; color: var(--muted); line-height: 1.7; font-size: 11px; letter-spacing: .025em; }
+    .log { font-size: 11px; opacity: 0; transition: opacity .35s ease; }
+    .log.on { opacity: 1; }
+    .log .ok { color: #7dde9c; }
+    .log .info { color: #84bee5; }
+    .garden {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: clamp(3px, 1.2vw, 18px);
+      min-height: 328px;
+      padding: 14px 0 20px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    .garden::after {
+      content: "";
+      position: absolute;
+      bottom: 16px;
+      left: 13%; right: 13%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #3f544c, transparent);
+      opacity: .65;
+    }
+    .rose {
+      --r: #741c3b;
+      --R: #c13365;
+      --P: #f36b92;
+      --p: #ffd0db;
+      --g: #205344;
+      --G: #5dd69a;
+      --l: #246144;
+      --L: #50ad78;
+      flex: 0 0 auto;
+      white-space: pre;
+      font-size: clamp(9.3px, 1.38vw, 13.5px);
+      line-height: 1.03;
+      letter-spacing: -0.065em;
+      user-select: none;
+      filter: drop-shadow(0 0 14px #de397a16);
+      transform-origin: center bottom;
+      animation: sway 6.2s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+    .rose:nth-child(1) { margin-bottom: -2px; animation-delay: -2.5s; }
+    .rose:nth-child(2) { margin-bottom: 19px; animation-delay: -.4s; }
+    .rose:nth-child(3) { margin-bottom: -9px; animation-delay: -4s; }
+    .rose.deep {
+      --r: #6d1637; --R: #ba2053; --P: #f34170; --p: #ffa4ba;
+    }
+    .rose.blush {
+      --r: #8d295d; --R: #d45291; --P: #ff83b4; --p: #ffcee0;
+    }
+    .rose.sunset {
+      --r: #8b3548; --R: #d76d75; --P: #ffa59b; --p: #ffe0c8;
+    }
+    .rose-line { height: 1.04em; }
+    .px { display: inline-block; opacity: 0; transform: translateY(7px) scale(.72); transition: opacity .34s ease, transform .45s cubic-bezier(.2, 1.5, .35, 1); }
+    .px.show { opacity: 1; transform: translateY(0) scale(1); }
+    .px.r { color: var(--r); }
+    .px.R { color: var(--R); text-shadow: 0 0 8px #f75a8b22; }
+    .px.P { color: var(--P); text-shadow: 0 0 11px #fb6c9249; }
+    .px.p { color: var(--p); text-shadow: 0 0 9px #ffb8c87a; }
+    .px.g, .px.t { color: var(--g); }
+    .px.G { color: var(--G); text-shadow: 0 0 9px #5bdca922; }
+    .px.l { color: var(--l); }
+    .px.L { color: var(--L); }
+    .sparkles { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+    .sparkle {
+      position: absolute; opacity: 0;
+      font-size: 13px; color: #ff92b6;
+      text-shadow: 0 0 11px currentColor;
+      animation: twinkle 3.6s ease-in-out infinite;
+    }
+    .sparkle:nth-child(1) { left: 13%; top: 23%; animation-delay: .3s; }
+    .sparkle:nth-child(2) { left: 28%; top: 6%; animation-delay: 1.1s; }
+    .sparkle:nth-child(3) { left: 48%; top: 2%; animation-delay: 1.7s; }
+    .sparkle:nth-child(4) { right: 20%; top: 17%; animation-delay: .7s; }
+    .sparkle:nth-child(5) { right: 9%; top: 41%; animation-delay: 2.4s; }
+    .sparkle:nth-child(6) { left: 19%; top: 64%; animation-delay: 2.1s; }
+    .wish-wrap { margin-top: 10px; text-align: center; min-height: 93px; }
+    .wish-line { display: flex; justify-content: center; align-items: center; gap: 10px; min-height: 49px; }
+    .wish-prompt { color: var(--mint); font-size: 17px; }
+    #wish {
+      color: #ffe1ea;
+      font-family: inherit;
+      font-size: clamp(19px, 3.9vw, 35px);
+      font-weight: 700;
+      letter-spacing: .005em;
+      line-height: 1.4;
+      text-shadow: 0 0 12px #ed6c8a33, 0 0 35px #e7618040;
+    }
+    .wish-caret { width: 3px; height: 1.8em; max-height: 29px; background: #fa8db5; animation: blink .7s steps(1) infinite; box-shadow: 0 0 12px #ff8caf70; }
+    .subline { min-height: 16px; margin-top: 6px; color: #a2a5b8; font-size: 12px; letter-spacing: .16em; opacity: 0; transform: translateY(6px); transition: opacity .7s ease, transform .7s ease; }
+    .subline.show { opacity: 1; transform: translateY(0); }
+    .footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #263244; padding: 14px 34px; color: #8796a5; gap: 14px; background: #101826; }
+    .footer-note { font-size: 11px; }
+    .restart {
+      appearance: none; border: 1px solid #3a6355; padding: 8px 13px;
+      border-radius: 8px; background: #122a26; color: #a5f5c4;
+      font: inherit; font-size: 11px; cursor: pointer;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .restart:hover { transform: translateY(-1px); background: #1d4037; border-color: #7bca9f; }
+    .restart:focus-visible { outline: 2px solid #a5f5c4; outline-offset: 3px; }
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes sway { from { transform: rotate(-1.7deg); } to { transform: rotate(1.7deg); } }
+    @keyframes twinkle { 0%, 23%, 75%, 100% { opacity: 0; transform: scale(.6) translateY(4px); } 41%, 57% { opacity: .87; transform: scale(1.1) translateY(0); } }
+    @media (max-width: 650px) {
+      body { padding: 15px 8px; }
+      .terminal { border-radius: 11px; }
+      .content { padding: 21px 12px 16px; min-height: 483px; }
+      .terminal-name { font-size: 10px; }
+      .top-right { display: none; }
+      .command { gap: 5px; font-size: 10px; }
+      .logs, .log { font-size: 9px; }
+      .garden { min-height: 300px; gap: 0; padding-top: 25px; }
+      .rose { font-size: clamp(6px, 2vw, 11px); letter-spacing: -.08em; }
+      .rose:nth-child(2) { margin-bottom: 12px; }
+      .footer { padding: 12px 15px; }
+      .footer-note { font-size: 9px; }
+      .wish-line { gap: 7px; }
+    }
+    @media (max-width: 380px) {
+      .rose { font-size: 6.4px; }
+      .command { font-size: 8px; }
+      .host { display: none; }
+      .garden { min-height: 265px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .rose, .sparkle, .wish-caret, .block-cursor { animation: none; }
+      .px { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="terminal" aria-label="Анимированные розы и пожелание удачи на экзамене">
+    <header class="titlebar">
+      <div class="lights" aria-hidden="true"><span class="light"></span><span class="light"></span><span class="light"></span></div>
+      <span class="terminal-name">rose-terminal — zsh</span>
+      <span class="top-right">♡ &nbsp; UTF-8</span>
+    </header>
+    <section class="content">
+      <div class="command"><span class="host">dream@terminal</span><span class="sign">~ %</span><span id="command-text"></span><span class="block-cursor" id="command-cursor"></span></div>
+      <div class="logs" aria-hidden="true">
+        <div class="log" id="log1"><span class="info">[INFO]</span> planting a little luck...</div>
+        <div class="log" id="log2"><span class="ok">[ OK ]</span> three roses successfully grown ♡</div>
+      </div>
+      <div class="garden" id="garden" aria-label="Три розы, которые постепенно расцветают">
+        <div class="sparkles" aria-hidden="true">
+          <span class="sparkle">✧</span><span class="sparkle">✦</span><span class="sparkle">·</span>
+          <span class="sparkle">✧</span><span class="sparkle">✦</span><span class="sparkle">·</span>
+        </div>
+        <div class="rose deep" aria-hidden="true"></div>
+        <div class="rose blush" aria-hidden="true"></div>
+        <div class="rose sunset" aria-hidden="true"></div>
+      </div>
+      <div class="wish-wrap" aria-live="polite">
+        <div class="wish-line"><span class="wish-prompt" aria-hidden="true">❯</span><strong id="wish"></strong><span class="wish-caret" id="wish-caret" aria-hidden="true" style="opacity:0"></span></div>
+        <div class="subline" id="subline">✦ &nbsp; ТЫ СО ВСЕМ СПРАВИШЬСЯ &nbsp; ✦</div>
+      </div>
+    </section>
+    <footer class="footer">
+      <span class="footer-note"><span style="color:#83dfaa">●</span> love.exe is running &nbsp; · &nbsp; Press R to replay</span>
+      <button class="restart" type="button" id="restart" aria-label="Повторить анимацию">↻ &nbsp; Повторить анимацию</button>
+    </footer>
+  </main>
+
+  <script>
+    // Each character is a colored terminal "pixel". Roses grow from bottom to top.
+    // r/R/P/p: petal shades; g/G/l/L/t: stalk, leaves and thorns.
+    const roseArt = [
+      '.........rrrrr.........',
+      '.......rrRRRRRrr.......',
+      '......rRRPPPPPRRr......',
+      '.....rRPPPppPPPRRr.....',
+      '....rRPPPRRrRPPPRRr....',
+      '...rRRPPPRrrRPPPPRRr...',
+      '...rRPPRPpPPpPPPRRr...',
+      '...rRRPPPPpPPPPPRRr...',
+      '....rRRPPPRPPPRRRr....',
+      '.....rRRRPPPPRRRr.....',
+      '......rrRRRRRRrr......',
+      '........rrRRrr........',
+      '..........gGg..........',
+      '..........gGg..........',
+      '..lll.....gGg.....lll..',
+      '.lllLLl...gGg...lLLlll.',
+      '..llLLLll.gGg.llLLLll..',
+      '.....llLLlgGgLLLll.....',
+      '........llgGgll........',
+      '..........gGg..........',
+      '..........gGg..........',
+      '.......t..gGg..t.......',
+      '..........gGg..........',
+      '..........gGg..........',
+      '..........gGg..........'
+    ];
+    const roseNodes = [...document.querySelectorAll('.rose')];
+    const allTimeouts = new Set();
+    const timer = (fn, ms) => {
+      const id = setTimeout(() => { allTimeouts.delete(id); fn(); }, ms);
+      allTimeouts.add(id);
+    };
+    const clearTimers = () => { allTimeouts.forEach(clearTimeout); allTimeouts.clear(); };
+
+    function createRoses() {
+      roseNodes.forEach((node) => {
+        node.replaceChildren();
+        roseArt.forEach((line, y) => {
+          const row = document.createElement('div');
+          row.className = 'rose-line';
+          [...line].forEach((ch) => {
+            if (ch === '.') {
+              row.appendChild(document.createTextNode(' '));
+            } else {
+              const px = document.createElement('span');
+              px.className = `px ${ch}`;
+              px.dataset.row = String(y);
+              px.textContent = '█';
+              row.appendChild(px);
+            }
+          });
+          node.appendChild(row);
+        });
+      });
+    }
+
+    function typeInto(target, content, begin, speed) {
+      [...content].forEach((character, index) => {
+        timer(() => { target.textContent += character; }, begin + index * speed);
+      });
+      return begin + [...content].length * speed;
+    }
+
+    function replay() {
+      clearTimers();
+      createRoses();
+      const command = document.getElementById('command-text');
+      const wish = document.getElementById('wish');
+      const cursor = document.getElementById('command-cursor');
+      const wishCaret = document.getElementById('wish-caret');
+      const subline = document.getElementById('subline');
+      const log1 = document.getElementById('log1');
+      const log2 = document.getElementById('log2');
+      command.textContent = '';
+      wish.textContent = '';
+      cursor.style.visibility = 'visible';
+      wishCaret.style.opacity = '0';
+      subline.classList.remove('show');
+      log1.classList.remove('on');
+      log2.classList.remove('on');
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced) {
+        command.textContent = './grow-roses.sh --wish=exam';
+        roseNodes.forEach(node => node.querySelectorAll('.px').forEach(px => px.classList.add('show')));
+        log1.classList.add('on'); log2.classList.add('on');
+        wish.textContent = 'Удачи на экзамене';
+        subline.classList.add('show');
+        cursor.style.visibility = 'hidden';
+        return;
+      }
+      const cmdEnd = typeInto(command, './grow-roses.sh --wish=exam', 300, 35);
+      timer(() => { log1.classList.add('on'); cursor.style.visibility = 'hidden'; }, cmdEnd + 140);
+      const growStart = cmdEnd + 300;
+      roseNodes.forEach((node, roseIndex) => {
+        node.querySelectorAll('.px').forEach((px) => {
+          const y = Number(px.dataset.row);
+          // Draw stems first, then make the rose heads open in a gentle upward wave.
+          const step = (roseArt.length - 1 - y) * 66;
+          const charJitter = Math.random() * 90;
+          timer(() => px.classList.add('show'), growStart + roseIndex * 320 + step + charJitter);
+        });
+      });
+      const fullGrow = growStart + roseArt.length * 66 + roseNodes.length * 320;
+      timer(() => log2.classList.add('on'), fullGrow - 130);
+      timer(() => { wishCaret.style.opacity = '1'; }, fullGrow + 310);
+      const end = typeInto(wish, 'Удачи на экзамене', fullGrow + 430, 98);
+      timer(() => subline.classList.add('show'), end + 350);
+    }
+
+    document.getElementById('restart').addEventListener('click', replay);
+    document.addEventListener('keydown', (event) => {
+      if (event.key.toLowerCase() === 'r' && !event.altKey && !event.ctrlKey && !event.metaKey && !event.repeat) replay();
+    });
+    replay();
+  </script>
+</body>
+</html>
