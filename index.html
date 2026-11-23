@@ -319,14 +319,6 @@
           flowers[f].append(frag);
         }
       }
-      // Output in terminal reading order: top row, left to right, then next row.
-      frames.sort((a, b) => {
-        const pa = Array.prototype.indexOf.call(flowers, a.closest(".flower"));
-        const pb = Array.prototype.indexOf.call(flowers, b.closest(".flower"));
-        const ra = [...a.closest(".flower").childNodes].filter(n => n.nodeType === 3 && n.textContent.includes("\n"));
-        void ra; // No visual sprites: characters stay positioned in the pre.
-        return 0;
-      });
       return frames;
     }
 
